@@ -1,0 +1,29 @@
+@import "tailwindcss";
+@plugin "daisyui";
+
+.animate-fide-up {
+  animation: fideUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.animate-fide-in {
+  animation: fideIn 0.6s ease-in-out both;
+}
+
+@keyframes fideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0px);
+  }
+}
+
+@keyframes fideIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
