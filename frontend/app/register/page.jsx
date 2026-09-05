@@ -2,6 +2,7 @@
 import axios from "axios";
 import {
   ArrowRight,
+  Check,
   Eye,
   EyeOff,
   Lock,
@@ -13,6 +14,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthRoutes";
 import { useRouter } from "next/navigation";
+import { toast } from "react-toastify";
 
 function page() {
   const [isLock, setIsLock] = useState(true);
@@ -25,6 +27,21 @@ function page() {
     password: "",
     secondPassword: "",
   });
+
+    const notify = () =>
+    toast(
+    <div>
+      <h4 className="font-semibold text-sm text-gray-900">Account created! Welcome to Lumina.</h4>
+   
+    </div>,
+    {
+      icon: (
+        <div className="w-5 h-5 rounded-full bg-black flex items-center justify-center text-white shrink-0">
+          <Check size={12} strokeWidth={3} />
+        </div>
+      ),
+    }
+  );
 
   const handleRegister = async (e) => {
     e.preventDefault();
@@ -40,7 +57,8 @@ function page() {
       );
 
       setUser(res.data.user);
-      console.log(res)
+      console.log(res);
+      notify()
       router.push("/");
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message;
@@ -164,12 +182,16 @@ function page() {
                 />
               </div>
             </div>
-            <p className="text-sm text-red-500 font-medium text-center">
-              {error}
-            </p>
-            <button className="rounded-xl shadow-lg shadow-orange-500/30 bg-orange-500 w-full h-11 flex items-center justify-center text-sm text-white font-medium hover:bg-orange-400 transition-colors gap-2">
-              <span>Create account</span> <ArrowRight />
-            </button>
+            <div className="relative">
+              {error && (
+                <p className="text-red-500 text-sm font-medium text-center absolute left-1/2 -translate-x-1/2 -top-4 ">
+                  {error}
+                </p>
+              )}
+              <button className="rounded-xl mt-2 shadow-lg shadow-orange-500/30 bg-orange-500 w-full h-11 flex items-center justify-center text-sm text-white font-medium hover:bg-orange-400 transition-colors gap-2">
+                <span>Create account</span> <ArrowRight />
+              </button>
+            </div>
             <div className="text-xs text-gray-500 text-center">
               By signing up, you agree to our{" "}
               <span className="underline">Terms</span> and{" "}

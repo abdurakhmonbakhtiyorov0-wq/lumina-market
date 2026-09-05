@@ -1,6 +1,6 @@
 "use client";
 
-import { DoorClosed, LogOut, Plus, Search, ShoppingBag } from "lucide-react";
+import { DoorClosed, LogOut, PackageCheck, Plus, Search, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
 import React, { useState } from "react";
@@ -33,10 +33,10 @@ function Header() {
   const [isOpen, setIsOpen] = useState(false);
 
   const cart = useMarket((state) => state.cart);
-  const clearCart = useMarket((state) => state.clearCart)
+  const clearCart = useMarket((state) => state.clearCart);
 
   const productsAmount = cart?.reduce((acc, item) => acc + item.amount, 0);
-  const letter = user?.name?.slice(0, 1);
+  const letter = user?.name?.slice(0, 1).toUpperCase();
 
   const handleLogOut = async () => {
     try {
@@ -46,11 +46,11 @@ function Header() {
         { withCredentials: true },
       );
       setUser(null);
-      setIsOpen(false)
+      setIsOpen(false);
       router.push("/");
-      router.refresh()
-      clearCart()
-      localStorage.removeItem("market-storage")
+      router.refresh();
+      clearCart();
+      localStorage.removeItem("market-storage");
     } catch (error) {
       console.error(error.message);
     }
@@ -138,8 +138,12 @@ function Header() {
                 >
                   <div className="p-1">
                     <div className="px-2 py-1.75">
-                      <p className="font-medium text-sm truncate">{user?.name}</p>
-                      <p className="text-sm text-gray-400 truncate">{user?.email}</p>
+                      <p className="font-medium text-sm truncate">
+                        {user?.name}
+                      </p>
+                      <p className="text-sm text-gray-400 truncate">
+                        {user?.email}
+                      </p>
                     </div>
                   </div>
                   <hr className="w-full bg-gray-200  border-none h-px left-0 my-1" />
@@ -150,6 +154,13 @@ function Header() {
                     >
                       <Plus size={16} />
                       <p className="text-sm">Sell a product</p>
+                    </Link>
+                    <Link
+                      href={"/orders"}
+                      className="flex items-center cursor-pointer px-2 py-1.5 w-full gap-2 rounded-lg hover:bg-orange-50 hover:text-orange-500 transition-colors"
+                    >
+                      <PackageCheck size={16} />
+                      <p className="text-sm">My orders</p>
                     </Link>
                     <Link
                       href={"/cart"}

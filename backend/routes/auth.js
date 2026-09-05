@@ -49,49 +49,54 @@ router.post("/register", async (req, res) => {
 
     res.cookie("token", token, cookieOptions);
 
-    return res.status(201).json({ message: "User was created successfully", user: newUser.rows[0] });
+    return res.status(201).json({
+      message: "User was created successfully",
+      user: newUser.rows[0],
+    });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ message: error.message });
+    return res.status(500).json({ message: error.message });
   }
 });
 
 router.post("/login", async (req, res) => {
   const { password, email } = req.body;
 
-  if (!password || !email) {
-    return res.status(400).json({ message: "Invalid credentials" });
+  try {
+    if (!password || !email) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const user = await pool.query("SELECT * FROM users WHERE email = $1", [
+      email,
+    ]);
+
+    if (user.rows.length === 0) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const userData = user.rows[0];
+
+    const isMatch = await bcrypt.compare(password, userData.password);
+
+    if (!isMatch) {
+      return res.status(400).json({ message: "Invalid credentials" });
+    }
+
+    const token = generateToken(user.rows[0].users_id);
+
+    res.cookie("token", token, cookieOptions);
+
+    res.json({
+      user: {
+        id: userData.id,
+        name: userData.name,
+        surname: userData.surname,
+        email: userData.email,
+      },
+    });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
   }
-
-  const user = await pool.query("SELECT * FROM users WHERE email = $1", [
-    email,
-  ]);
-
-  if (!user.rows.length === 0) {
-    return res.status(400).json({ message: "Invalid credentials" });
-  }
-
-  const userData = user.rows[0];
-
-  const isMatch = await bcrypt.compare(password, userData.password);
-
-  if (!isMatch) {
-    return res.status(400).json({ message: "Invalid credentials" });
-  }
-
-  const token = generateToken(user.rows[0].users_id);
-
-  res.cookie("token", token, cookieOptions);
-
-  res.json({
-    user: {
-      id: userData.id,
-      name: userData.name,
-      surname: userData.surname,
-      email: userData.email,
-    },
-  });
 });
 
 router.get("/me", protect, async (req, res) => {

@@ -1,13 +1,15 @@
+"use client"
 import React from "react";
 import Header from "./components/Header";
 import Hero from "./components/Hero";
 import { categories } from "./api/products.js";
 import Link from "next/link";
 import { ArrowRight, ShoppingBag, Star } from "lucide-react";
-import { products } from "./api/products.js";
 import ProductCard from "./components/ProductCard";
+import { useProduct } from "./context/ProductRoutes";
 
 function page() {
+  const { products = [], setProducts } = useProduct();
   return (
     <div>
       <Hero />

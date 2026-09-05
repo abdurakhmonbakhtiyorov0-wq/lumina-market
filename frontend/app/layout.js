@@ -1,8 +1,11 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./context/AuthRoutes";
+import { Providers } from "./context/Provider";
+import { ProductProvider } from "./context/ProductRoutes";
 import Header from "./components/Header";
 import Footer from "./components/Footer";
+import { ToastContainer } from "react-toastify";
 
 export const metadata = {
   title: "Lumina Shop",
@@ -13,11 +16,20 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en" data-theme="light" className={`h-full antialiased`}>
       <body className="min-h-full flex flex-col">
-        <AuthProvider>
-          <Header />
-          {children}
-          <Footer />
-        </AuthProvider>
+        <Providers>
+          <AuthProvider>
+            <ProductProvider>
+              <Header />
+              {children}
+              <Footer />
+              <ToastContainer
+                hideProgressBar
+                autoClose={7000}
+                position="bottom-right"
+              />
+            </ProductProvider>
+          </AuthProvider>
+        </Providers>
       </body>
     </html>
   );

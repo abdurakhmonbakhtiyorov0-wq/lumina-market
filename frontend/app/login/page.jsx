@@ -2,6 +2,7 @@
 import axios from "axios";
 import {
   ArrowRight,
+  Check,
   Eye,
   EyeOff,
   Lock,
@@ -13,6 +14,8 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { useAuth } from "../context/AuthRoutes";
 import { useRouter } from "next/navigation";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function page() {
   const router = useRouter();
@@ -23,6 +26,20 @@ function page() {
     email: "",
     password: "",
   });
+  const notify = () =>
+    toast(
+    <div>
+      <h4 className="font-semibold text-sm text-gray-900">Welcome back!</h4>
+   
+    </div>,
+    {
+      icon: (
+        <div className="w-6 h-6 rounded-full bg-black flex items-center justify-center text-white shrink-0">
+          <Check size={13} strokeWidth={3} />
+        </div>
+      ),
+    }
+  );
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -33,6 +50,7 @@ function page() {
         { withCredentials: true },
       );
       setUser(res.data.user);
+      notify()
       router.push("/");
     } catch (error) {
       const errorMessage = error.response?.data?.message || error.message;
@@ -122,12 +140,17 @@ function page() {
                 </button>
               </div>
             </div>
-            <p className="text-red-500 text-sm font-medium text-center">
-              {error}
-            </p>
-            <button className="rounded-xl shadow-lg shadow-orange-500/30 bg-orange-500 w-full h-11 flex items-center justify-center text-sm text-white font-medium hover:bg-orange-400 transition-colors gap-2">
-              <span>Create account</span> <ArrowRight />
-            </button>
+            <div className="relative">
+              {error && (
+                <p className="text-red-500 text-sm font-medium text-center absolute left-1/2 -translate-x-1/2 -top-4 ">
+                  {error}
+                </p>
+              )}
+
+              <button className="rounded-xl mt-2 shadow-lg shadow-orange-500/30 bg-orange-500 w-full h-11 flex items-center justify-center text-sm text-white font-medium hover:bg-orange-400 transition-colors gap-2">
+                <span>Create account</span> <ArrowRight />
+              </button>
+            </div>
             <div className="flex items-center w-full gap-3">
               <hr className="flex-1 bg-gray-200 border-none h-px scale-y-50 " />
               <p className="text-gray-500 text-sm">OR</p>

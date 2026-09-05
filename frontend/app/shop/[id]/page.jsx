@@ -25,9 +25,9 @@ function page() {
   const addToCart = useMarket((state) => state.addToCart);
 
   const product = products.find((product) => product.id === id);
-  const gallery = product.gallery;
-  const numOfStars = Math.round(product.rating);
-  const defaultImage = product.image;
+  const gallery = product?.gallery;
+  const numOfStars = Math.round(product?.rating);
+  const defaultImage = product?.image;
 
   const [currentImage, setCurrentImage] = useState(defaultImage);
   const [quantity, setQuantity] = useState(1);

@@ -4,12 +4,15 @@ import { useMarket } from "../store";
 import {
   ArrowLeft,
   ArrowRight,
+  icons,
   Minus,
   Plus,
   ShoppingBag,
   Trash2,
 } from "lucide-react";
 import Link from "next/link";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function page() {
   const cart = useMarket((state) => state.cart);
@@ -17,6 +20,9 @@ function page() {
   const removeProduct = useMarket((state) => state.removeProduct);
   const changeAmount = useMarket((state) => state.changeAmount);
   const productsAmount = cart?.reduce((acc, item) => acc + item.amount, 0);
+  const notify = (productName) => {
+    toast(`${productName} was deleted from cart`);
+  };
 
   const subtotal = cart?.reduce(
     (acc, item) => acc + item.price * item.amount,
@@ -92,7 +98,9 @@ function page() {
                             </p>
                           </div>
                           <button
-                            onClick={() => removeProduct(product.id)}
+                            onClick={() => {
+                              (removeProduct(product.id), notify(product.name));
+                            }}
                             className="h-8 w-8 shrink-0 rounded-md text-gray-500 flex items-center justify-center font-medium text-sm hover:bg-orange-50 hover:text-orange-500 transition-colors duration-300"
                           >
                             <Trash2 size={16} className={""} />
@@ -102,7 +110,7 @@ function page() {
                           <div className="border border-gray-200 rounded-xl flex items-center mt-5.75">
                             <button
                               className="w-8 h-8 rounded-l-xl flex items-center justify-center disabled:opacity-50 disabled:pointer-events-none hover:bg-orange-50 hover:text-orange-600 transition-colors"
-                              onClick={() => changeAmount(product.id)}
+                              onClick={() => changeAmount(product.id, -1)}
                             >
                               <Minus size={20} className="cursor-pointer" />
                             </button>
@@ -111,7 +119,7 @@ function page() {
                             </span>
                             <button
                               className="w-8 h-8 rounded-r-xl flex items-center justify-center hover:bg-orange-50 hover:text-orange-600 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                              onClick={() => addToCart({ product, amount: 1 })}
+                              onClick={() => changeAmount(product.id, +1)}
                             >
                               <Plus size={20} className="cursor-pointer" />
                             </button>
@@ -163,6 +171,11 @@ function page() {
           </div>
         </div>
       )}
+      <ToastContainer
+        position="bottom-right"
+        autoClose={7000}
+        hideProgressBar
+      />
     </div>
   );
 }

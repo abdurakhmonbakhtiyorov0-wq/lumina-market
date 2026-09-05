@@ -1,6 +1,9 @@
 import React from "react";
 
-function SellInputs({ img, placeholder, name, type, step }) {
+function SellInputs({ img, placeholder, name, type, step, func, val }) {
+  const handleChange = (event) => {
+    func(event.target.value);
+  };
   return (
     <div className="grid space-y-2">
       <label className="text-sm font-medium " htmlFor="">
@@ -9,6 +12,8 @@ function SellInputs({ img, placeholder, name, type, step }) {
       <div className="relative flex-1 h-10">
         {img}
         <input
+        value={val}
+        onChange={handleChange}
           className="w-full absolute h-10 px-3 py-2 shrink-0 focus-visible:ring-2 border border-gray-200 focus-visible:ring-orange-500 focus-visible:ring-offset-2 outline-none rounded-md file:border-0 pl-10"
           type={type}
           placeholder={placeholder}

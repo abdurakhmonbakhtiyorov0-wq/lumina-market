@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
-import { products } from "../api/products";
+// import { products } from "../api/products";
 import { categories } from "../api/products";
 import {
   ArrowDown,
@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import ProductCard from "../components/ProductCard";
 import { useSearchParams } from "next/navigation";
+import axios from "axios";
+import { useProduct } from "../context/ProductRoutes";
 
 const sortOptions = [
   { value: "featured", label: "Featured" },
@@ -23,11 +25,7 @@ const sortOptions = [
 function page() {
   const searchParams = useSearchParams();
   const initialCategory = searchParams.get("category") || "All";
-
-  useEffect(() => {
-    setActiveCategory(searchParams.get("category") || "All");
-  }, [searchParams]);
-
+  const {products = [], setProducts} = useProduct()
   const [activeCategory, setActiveCategory] = useState(initialCategory);
   const [activePrice, setActivePrice] = useState("Featured");
   const [sort, setSort] = useState("featured");
@@ -35,11 +33,17 @@ function page() {
   const [isOpen, setIsOpen] = useState(false);
 
 
+  useEffect(() => {
+    setActiveCategory(searchParams.get("category") || "All");
+  }, [searchParams]);
+
   const filtered = useMemo(() => {
     let result = [...products];
 
     if (activeCategory !== "All") {
-      result = result.filter((p) => p.category === activeCategory);
+      result = result.filter(
+        (p) => p.category?.toLowerCase() === activeCategory.toLowerCase(),
+      );
     }
 
     if (searchVal.trim()) {
@@ -62,7 +66,7 @@ function page() {
       result.sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
     }
     return result;
-  }, [activeCategory, activePrice, searchVal]);
+  }, [activeCategory, activePrice, searchVal, sort, products]);
 
   return (
     <div className="min-h-screen px-4 lg:px-6 sm:px-8 py-10">
@@ -154,7 +158,7 @@ function page() {
         </div>
       </div>
     </div>
-  );
+  );  
 }
 
 export default page;

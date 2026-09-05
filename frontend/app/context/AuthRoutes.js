@@ -1,42 +1,44 @@
 "use client";
 
 import axios from "axios";
-import { useContext, createContext, useState, useEffect, use } from "react";
+import { useContext, createContext, use } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState();
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/api/auth/me", {
-          withCredentials: true,
-        });
-        const data = await res.data
-        setUser(data);
-        console.log(data)
-      } catch (error) {
-        console.log(error.message);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUser()
-  },[]);
-  if (loading) {
-    return <p>Loading...</p>;
+  const { data: user, isLoading } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: async () => {
+      const res = await axios.get("http://localhost:5000/api/auth/me", {
+        withCredentials: true,
+      });
+      return res.data
+    },
+    retry: false,
+  });
+
+  const setUser = (userData) => {
+    queryClient.setQueryData(["authUser"], userData);
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen w-full items-center justify-center flex gap-2.5">
+        Loading...
+      </div>
+    );
   }
 
   return (
-    <AuthContext.Provider value={{ user, setUser, loading, setLoading }}>
+    <AuthContext.Provider value={{ user, setUser, isLoading }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-export function useAuth(){
-  return useContext(AuthContext)
+export function useAuth() {
+  return useContext(AuthContext);
 }
