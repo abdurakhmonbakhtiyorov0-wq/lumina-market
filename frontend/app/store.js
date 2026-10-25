@@ -30,7 +30,7 @@ export const useMarket = create(
 
         try {
           await axios.post(
-            "http://localhost:5000/api/cart",
+            "/api/cart",
             {
               productId: product.id,
               amount,
@@ -47,7 +47,7 @@ export const useMarket = create(
         }));
 
         try {
-          await axios.delete(`http://localhost:5000/api/cart/${productId}`, {
+          await axios.delete(`/api/cart/${productId}`, {
             withCredentials: true,
           });
         } catch (error) {
@@ -77,7 +77,7 @@ export const useMarket = create(
           const action = delta > 0 ? "Increment" : "Decrement";
 
           await axios.put(
-            `http://localhost:5000/api/cart/${productId}`,
+            `/api/cart/${productId}`,
             {
               action,
             },

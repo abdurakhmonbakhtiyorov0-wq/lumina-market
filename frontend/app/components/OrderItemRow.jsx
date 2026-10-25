@@ -6,18 +6,11 @@ import { RotateCcw } from "lucide-react";
 import { useMarket } from "../store";
 
 function OrderItemRow({ item }) {
-  const addToCart = useMarket((state) => state.addToCart);
+ const addToCart = useMarket((state) => state.addToCart)
 
-  const handleBuyAgain = () => {
-    addToCart({
-      id: item.id,
-      name: item.name,
-      price: item.price,
-      image: item.image,
-      amount: 1,
-    });
-  };
-
+ const handleBuyAgain = () => {
+  addToCart(item)
+ }
   return (
     <div className="py-4 first:pt-0 last:pb-0 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
       <div className="flex items-center gap-4">

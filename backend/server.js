@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import authRoutes from "./routes/auth.js";
 import sellRoutes from "./routes/product.js";
 import cartRoutes from "./routes/cart.js";
+import orderRoutes from "./routes/orders.js";
 
 const app = express();
 
@@ -20,9 +21,16 @@ app.use(cookieParser());
 app.use("/api/auth", authRoutes);
 app.use("/api/sell", sellRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/order", orderRoutes);
 
-const PORT = process.env.PORT || 5000;
+app.get("/api/health", (_, res) => res.json({ ok: true }));
 
-app.listen(PORT, (_, res) => {
-  console.log(`Server is running on port ${PORT}`);
-});
+// Vercel runs the exported app itself; app.listen is only for running locally.
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 5000;
+  app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
+  });
+}
+
+export default app;

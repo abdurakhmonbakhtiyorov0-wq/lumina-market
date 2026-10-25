@@ -75,7 +75,7 @@ function OrderCard({ order }) {
           <span className="truncate">
             Shipping to:{" "}
             <strong className="text-gray-700 font-semibold">
-              {order.shipping_address}
+              {order.shipping_address || order.shipping_adress}
             </strong>
           </span>
         </div>

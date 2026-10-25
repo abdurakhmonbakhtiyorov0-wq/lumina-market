@@ -13,7 +13,7 @@ export function ProductProvider({ children }) {
   const { data: products, isLoading } = useQuery({
     queryKey: ["product"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:5000/api/sell", {
+      const res = await axios.get("/api/sell", {
         withCredentials: true,
       });
       const result = res.data.item;
@@ -47,7 +47,7 @@ export function useSyncCart() {
   const { data: serverCart } = useQuery({
     queryKey: ["serverCart"],
     queryFn: async () => {
-      const res = await axios.get("http://localhost:5000/api/cart/", {
+      const res = await axios.get("/api/cart/", {
         withCredentials: true,
       });
       return res.data;

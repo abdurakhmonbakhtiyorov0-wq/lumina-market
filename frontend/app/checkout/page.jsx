@@ -5,6 +5,7 @@ import Input from "../components/ui/Input";
 import { useMarket } from "../store";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import axios from "axios";
 
 function page() {
   const cart = useMarket((state) => state.cart);
@@ -24,12 +25,43 @@ function page() {
     postal: "",
   });
 
-  // const isEmpty = Object.values(formData).every((val) => val.trim() !== "");
+  const { address, city, zip, country } = formData;
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    router.push("/completed")
-    clearCart()
+  const shipping_adress = [address, city, zip, country]
+    .filter(Boolean)
+    .join(", ");
+
+  const productsAmount = cart?.reduce((acc, item) => acc + item.amount, 0);
+
+  // const handleChange = (e) => {
+  //   const clean = e.replace("/\D/g", "").slice(0, 4);
+
+  //   const formatted =
+  //     clean.length > 2 ? `${clean.slice(0, 2)}/${clean.slice(2)}` : clean;
+
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     expiry: formatted,
+  //   }));
+  // };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    try {
+      const res = await axios.post(
+        "/api/order",
+        { shipping_adress, items: cart, total_amount: productsAmount },
+        { withCredentials: true },
+      );
+
+      const data = res;
+      console.log(res);
+      router.push("/completed");
+      clearCart();
+    } catch (err) {
+      console.error("error:", err.message);
+    }
   };
 
   const subtotal = cart?.reduce(
@@ -121,7 +153,7 @@ function page() {
             <section className="rounded-2xl border border-gray-200 shadow-sm p-6 ">
               <div className="flex items-center gap-2 mb-4">
                 <CreditCard className="text-orange-500" size={20} />
-                <h1 className="text-lg font-semibold">Shipping address</h1>
+                <h1 className="text-lg font-semibold">Payment method</h1>
               </div>
               <div className="space-y-4 grid">
                 <Input

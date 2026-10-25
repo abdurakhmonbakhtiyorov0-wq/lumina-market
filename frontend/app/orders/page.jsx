@@ -1,51 +1,72 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { Package, Search, ArrowRight, ShoppingBag, LogIn, UserCheck } from "lucide-react";
+import {
+  Search,
+  ArrowRight,
+  ShoppingBag,
+  LogIn,
+  UserCheck,
+  Loader2,
+} from "lucide-react";
 import OrderCard from "../components/OrderCard";
 import MetricCard from "../components/ui/MetricCard";
 import { useAuth } from "../context/AuthRoutes";
-import { getOrdersForUser } from "../api/userOrders";
+import axios from "axios";
 
 const FILTER_TABS = ["All", "Processing", "Delivered", "Cancelled"];
 
 function OrdersPage() {
-  const { user } = useAuth(); // Logged-in user from AuthContext ({ users_id, name, email })
+  const { user } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Retrieves only the orders that belong to the logged-in user!
-  const myUserOrders = useMemo(() => {
-    if (!user) return [];
-    return getOrdersForUser(user);
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUser = async () => {
+      try {
+        setLoading(false);
+        const res = await axios.get("/api/order", {
+          withCredentials: true,
+        });
+        setOrders(res.data || []);
+      } catch (error) {
+        console.error("Error fetching orders:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUser();
   }, [user]);
 
-  // Filter based on active tab and search input
-  const filteredOrders = useMemo(() => {
-    return myUserOrders.filter((order) => {
+  const filteredOrders = useMemo(() => {  
+    return orders.filter((order) => {
       const matchesTab =
         activeTab === "All"
-          ? true
-          : order.status.toLowerCase() === activeTab.toLowerCase();
+          ? "true"
+          : order.status?.toLowerCase() === activeTab.toLowerCase();
 
       const q = searchQuery.toLowerCase().trim();
-      const matchesSearch =
+      const matchesQuery =
         !q ||
         String(order.id).includes(q) ||
-        order.items.some((item) => item.name.toLowerCase().includes(q));
+        order.items?.some((p) => p.name.toLowerCase().includes(q));
 
-      return matchesTab && matchesSearch;
+      return matchesQuery && matchesTab;
     });
-  }, [myUserOrders, activeTab, searchQuery]);
+  }, [orders, activeTab, searchQuery]);
 
-  const totalSpent = myUserOrders.reduce(
-    (acc, o) => acc + (Number(o.total_amount) || 0),
-    0
+  const totalSpent = orders.reduce(
+    (acc, o) => acc + Number(o.total_amount) || 0,0
   );
-  const activeCount = myUserOrders.filter((o) => o.status === "Processing").length;
 
-  // Case 1: User is not logged in
+  const activeCount = orders.filter((o) => o.status === "Processing").length
+console.log(orders  )
   if (!user) {
     return (
       <div className="min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#FBFBFC]">
@@ -57,7 +78,8 @@ function OrdersPage() {
             Sign in to view your orders
           </h2>
           <p className="text-gray-500 text-sm mt-2 mb-6 leading-relaxed">
-            Please log in with your Lumina account to view your purchase history.
+            Please log in with your Lumina account to view your purchase
+            history.
           </p>
           <div className="space-y-3">
             <Link
@@ -66,23 +88,15 @@ function OrdersPage() {
             >
               <LogIn size={16} /> Log in to my account
             </Link>
-            <Link
-              href="/shop"
-              className="w-full block py-2.5 text-xs font-semibold text-gray-500 hover:text-gray-900 transition-colors"
-            >
-              Continue shopping as guest
-            </Link>
           </div>
         </div>
       </div>
     );
   }
 
-  // Case 2: User is logged in -> Show ONLY their orders
   return (
     <div className="min-h-screen bg-[#FBFBFC] py-10 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
-        
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-8 border-b border-gray-200">
           <div>
@@ -93,14 +107,18 @@ function OrdersPage() {
               My Orders
             </h1>
             <p className="mt-2 text-gray-500 text-sm sm:text-base">
-              Viewing orders placed by <span className="font-semibold text-gray-800">{user?.email}</span>
+              Viewing orders placed by{" "}
+              <span className="font-semibold text-gray-800">{user?.email}</span>
             </p>
           </div>
 
-          {/* Quick Metrics */}
           <div className="flex items-center gap-3">
-            <MetricCard label="Your Orders" value={myUserOrders.length} />
-            <MetricCard label="Active" value={activeCount} colorClass="text-orange-500" />
+            <MetricCard label="Your Orders" value={orders.length} />
+            <MetricCard
+              label="Active"
+              value={activeCount}
+              colorClass="text-orange-500"
+            />
             <MetricCard
               label="Total Spent"
               value={`$${totalSpent.toFixed(2)}`}
@@ -109,17 +127,17 @@ function OrdersPage() {
           </div>
         </div>
 
-        {/* Filters & Search Toolbar */}
+        {/* Toolbar */}
         <div className="my-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-          
-          {/* Filter Tabs */}
           <div className="flex items-center gap-1.5 p-1 bg-gray-100/90 rounded-2xl w-full sm:w-auto overflow-x-auto">
             {FILTER_TABS.map((tab) => {
               const isActive = activeTab === tab;
               const count =
                 tab === "All"
-                  ? myUserOrders.length
-                  : myUserOrders.filter((o) => o.status.toLowerCase() === tab.toLowerCase()).length;
+                  ? orders.length
+                  : orders.filter(
+                      (o) => o.status?.toLowerCase() === tab.toLowerCase(),
+                    ).length;
 
               return (
                 <button
@@ -133,9 +151,7 @@ function OrdersPage() {
                 >
                   {tab}
                   <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${
-                      isActive ? "bg-orange-500 text-white" : "bg-gray-200 text-gray-600"
-                    }`}
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-bold ${isActive ? "bg-orange-500 text-white" : "bg-gray-200 text-gray-600"}`}
                   >
                     {count}
                   </span>
@@ -144,7 +160,6 @@ function OrdersPage() {
             })}
           </div>
 
-          {/* Search Bar */}
           <div className="relative w-full sm:w-80">
             <Search
               size={18}
@@ -160,8 +175,13 @@ function OrdersPage() {
           </div>
         </div>
 
-        {/* Orders List */}
-        {filteredOrders.length === 0 ? (
+        {/* List / Loading / Empty */}
+        {loading ? (
+          <div className="py-20 flex flex-col items-center justify-center text-gray-400">
+            <Loader2 className="animate-spin text-orange-500 mb-2" size={32} />
+            <p className="text-sm">Loading your orders...</p>
+          </div>
+        ) : filteredOrders.length === 0 ? (
           <div className="bg-white rounded-3xl border border-gray-200 p-12 text-center max-w-lg mx-auto shadow-sm my-12">
             <div className="w-16 h-16 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center mx-auto mb-4">
               <ShoppingBag size={32} />
@@ -171,8 +191,8 @@ function OrdersPage() {
               {searchQuery
                 ? `No orders matching "${searchQuery}".`
                 : activeTab === "All"
-                ? "You haven't placed any orders yet."
-                : `You don't have any ${activeTab.toLowerCase()} orders.`}
+                  ? "You haven't placed any orders yet."
+                  : `You don't have any ${activeTab.toLowerCase()} orders.`}
             </p>
             <Link
               href="/shop"
@@ -188,7 +208,6 @@ function OrdersPage() {
             ))}
           </div>
         )}
-
       </div>
     </div>
   );
