@@ -83,7 +83,7 @@ function Hero() {
             </h3>
             <h3 className="flex items-center gap-2 text-white/80 text-sm">
             <Sparkles size={20} className="text-amber-600"/>
-              4.8 avg seller ratin
+              4.8 avg seller rating
             </h3>
           </div>
         </div>

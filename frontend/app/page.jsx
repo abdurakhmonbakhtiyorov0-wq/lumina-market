@@ -43,17 +43,14 @@ function page() {
                 View all <ArrowRight size={16} strokeWidth={2} />
               </Link>
             </div>
-            <div className="grid grid-cols-3 gap-7 gap-y-7">
-              {products.map(
-                (product, index) =>
-                  product.badge && (
-                    <ProductCard
-                      product={product}
-                      index={index}
-                      key={product.id}
-                    />
-                  ),
-              )}
+            <div className="grid grid-cols-1 gap-7 sm:grid-cols-2 lg:grid-cols-3">
+              {products.slice(0, 6).map((product, index) => (
+                <ProductCard
+                  product={product}
+                  index={index}
+                  key={product.id}
+                />
+              ))}
             </div>
           </div>
         </div>

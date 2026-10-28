@@ -75,7 +75,7 @@ function page() {
           <h1 className="text-3xl sm:text-4xl tracking-tight font-bold">
             Shop all products
           </h1>
-          <p className="mt-2 text-gray-500">{filtered.length} items avilable</p>
+          <p className="mt-2 text-gray-500">{filtered.length} items available</p>
         </div>
         <form className="flex items-center gap-3 mb-6 relative">
           <div className="relative flex-1 h-10">
